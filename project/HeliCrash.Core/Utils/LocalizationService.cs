@@ -17,9 +17,7 @@ internal static class LocalizationService
 
         string path = Path.Combine(HeliCrashPlugin.Directory, "LocalizationMappings.jsonc");
 
-        var locales = HeliCrashPlugin.LoadJson<Dictionary<string, Dictionary<string, string>>>(
-            path
-        );
+        var locales = JsonUtil.LoadJson<Dictionary<string, Dictionary<string, string>>>(path);
 
         s_mappings = locales[locale];
     }

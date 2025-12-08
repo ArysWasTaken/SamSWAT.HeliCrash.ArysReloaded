@@ -4,7 +4,6 @@ using System.Reflection;
 using BepInEx;
 using BepInEx.Bootstrap;
 using BepInEx.Configuration;
-using Newtonsoft.Json;
 using SamSWAT.HeliCrash.ArysReloaded.Models;
 using SamSWAT.HeliCrash.ArysReloaded.Utils;
 
@@ -40,10 +39,7 @@ public class HeliCrashPlugin : BaseUnityPlugin
         Directory = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location)!;
 
         string crashSitesJsonPath = Path.Combine(Directory, "HeliCrashLocations.json");
-        HeliCrashLocations = LoadJson<HeliCrashLocations>(crashSitesJsonPath);
-
-        new GetLocalePatch().Enable();
-        new InitHeliCrashOnRaidStartPatch().Enable();
+        HeliCrashLocations = JsonUtil.LoadJson<HeliCrashLocations>(crashSitesJsonPath);
 
         FikaEnabled = Chainloader.PluginInfos.ContainsKey("com.fika.core");
         if (!FikaEnabled) { }
