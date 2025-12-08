@@ -1,24 +1,23 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">  
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
   <PropertyGroup>
-    <RootNamespace>SamSWAT.HeliCrash.ArysReloaded</RootNamespace>
-    <AssemblyName>SamSWAT.HeliCrash.ArysReloaded</AssemblyName>
+    <RootNamespace>SamSWAT.HeliCrash.ArysReloaded.Fika</RootNamespace>
     <TargetFramework>netstandard2.1</TargetFramework>
-    <Deterministic>true</Deterministic>
     <LangVersion>latest</LangVersion>
+    <Nullable>false</Nullable>
     <IsPackable>false</IsPackable>
-    <Version>2.3.0</Version>
-    <Copyright>Copyright © SamSWAT, Arys 2025</Copyright>
-    <AssemblyVersion>2.3.0</AssemblyVersion>
-    <FileVersion>2.3.0</FileVersion>
-    <IncludeSourceRevisionInInformationalVersion>false</IncludeSourceRevisionInInformationalVersion>
-    <Authors />
+    <AssemblyVersion>1.0.0</AssemblyVersion>
+    <FileVersion>1.0.0</FileVersion>
+    <PackageId>HeliCrash.Fika</PackageId>
+    <Configurations>Debug</Configurations>
+    <Platforms>AnyCPU</Platforms>
   </PropertyGroup>
 
   <!-- ONLY MODIFY THIS SECTION -->
   <PropertyGroup>
     <!-- Your SPT path -->
     <SptDir>E:\SPT-3.11\</SptDir>
-    
+
     <!--
       This is the path to where all your different SPT versions' assemblies are stored
       For example, my SPT Assemblies folder is laid out like so:
@@ -40,27 +39,19 @@
     <SptVersion Condition=" '$(SptVersion)' == '' ">311x</SptVersion>
   </PropertyGroup>
   <!-- DO NOT MODIFY BEYOND THIS LINE UNLESS YOU KNOW WHAT YOU ARE DOING -->
-  
+
   <PropertyGroup>
     <CopyToOutputDir>$(MSBuildThisFileDirectory)CopyToOutput</CopyToOutputDir>
     <SptBepInExPluginsDir>$(SptDir)BepInEx\plugins\</SptBepInExPluginsDir>
     <SptBepInExPatchersDir>$(SptDir)BepInEx\patchers\</SptBepInExPatchersDir>
   </PropertyGroup>
-  
+
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DebugSymbols>true</DebugSymbols>
     <DebugType>full</DebugType>
     <Optimize>false</Optimize>
     <OutputPath>bin\Debug\</OutputPath>
     <DefineConstants>DEBUG;TRACE</DefineConstants>
-    <ErrorReport>prompt</ErrorReport>
-    <WarningLevel>4</WarningLevel>
-  </PropertyGroup>
-  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
-    <DebugType>pdbonly</DebugType>
-    <Optimize>true</Optimize>
-    <OutputPath>bin\Release\</OutputPath>
-    <DefineConstants>TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
@@ -74,10 +65,13 @@
     <OutputPath>build\SPT-3.11\</OutputPath>
     <SptVersion>311x</SptVersion>
   </PropertyGroup>
-  
+
   <ItemGroup>
     <Reference Include="0Harmony">
       <HintPath>$(SptSharedAssembliesDir)$(SptVersion)\0Harmony.dll</HintPath>
+    </Reference>
+    <Reference Include="Fika.Core">
+      <HintPath>References\Fika.Core.dll</HintPath>
     </Reference>
     <Reference Include="Sirenix.Serialization">
       <HintPath>$(SptSharedAssembliesDir)$(SptVersion)\Sirenix.Serialization.dll</HintPath>
@@ -122,8 +116,25 @@
       <HintPath>$(SptSharedAssembliesDir)$(SptVersion)\UnityEngine.PhysicsModule.dll</HintPath>
     </Reference>
   </ItemGroup>
+
+  <ItemGroup>
+    <Compile Remove="References\**" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <EmbeddedResource Remove="References\**" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Remove="References\**" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\HeliCrash.Core\HeliCrash.Core.csproj" />
+  </ItemGroup>
   
   <Target Name="PostBuild" AfterTargets="PostBuildEvent">
     <Exec Command="copy &quot;$(TargetPath)&quot; &quot;$(SptBepInExPluginsDir)SamSWAT.HeliCrash.ArysReloaded\$(TargetFileName)&quot;&#xA;xcopy /y &quot;$(CopyToOutputDir)&quot; &quot;$(SptBepInExPluginsDir)SamSWAT.HeliCrash.ArysReloaded\&quot;" />
   </Target>
+
 </Project>

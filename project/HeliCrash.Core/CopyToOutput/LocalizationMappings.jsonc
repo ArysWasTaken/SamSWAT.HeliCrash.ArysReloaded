@@ -1,0 +1,24 @@
+{
+  "en": {
+    /* Name of container in the UI when you open it */
+    "containerName": "Heavy crate",
+
+    /* BepInEx Config Localization (F12 menu) */
+    /* Main settings section */
+    "mainSettings": "Main Settings",
+
+    "crashSiteSpawnChance": "Helicopter crash site chance",
+    "crashSiteSpawnChance_desc": "Percent chance of helicopter crash site appearance",
+
+    "crashHasLootChance": "Chance crash site has loot",
+    "crashHasLootChance_desc": "Percent chance of helicopter crash site having a lootable crate",
+
+    /* Debugging settings section */
+    "debugSettings": "Debug Settings",
+
+    "enableLogging": "Enable debug logging",
+
+    "spawnAllCrashSites": "Spawn all crash sites",
+    "spawnAllCrashSites_desc": "All crash sites on a map will be spawned"
+  }
+}

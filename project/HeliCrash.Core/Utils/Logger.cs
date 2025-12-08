@@ -15,7 +15,7 @@ internal static class Logger
 	public static void LogInfo(string message)
 	{
 		s_logSource.LogInfo(message);
-		if (Plugin.LoggingEnabled.Value)
+		if (HeliCrashPlugin.LoggingEnabled.Value)
 		{
 			ConsoleScreen.Log(message);
 		}
@@ -24,7 +24,7 @@ internal static class Logger
 	public static void LogWarning(string message)
 	{
 		s_logSource.LogWarning(message);
-		if (Plugin.LoggingEnabled.Value)
+		if (HeliCrashPlugin.LoggingEnabled.Value)
 		{
 			ConsoleScreen.LogWarning(message);
 		}
@@ -33,7 +33,7 @@ internal static class Logger
 	public static void LogError(string message)
 	{
 		s_logSource.LogError(message);
-		if (Plugin.LoggingEnabled.Value)
+		if (HeliCrashPlugin.LoggingEnabled.Value)
 		{
 			ConsoleScreen.LogError(message);
 		}
