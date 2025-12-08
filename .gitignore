@@ -391,3 +391,5 @@ FodyWeavers.xsd
 
 *.bundle
 [Rr]eferences/
+mod/**
+global.json
