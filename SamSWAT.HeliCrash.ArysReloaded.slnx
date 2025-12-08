@@ -1,0 +1,11 @@
+<Solution>
+  <Configurations>
+    <BuildType Name="Debug" />
+    <BuildType Name="SPT-3.10 Release" />
+    <BuildType Name="SPT-3.11 Release" />
+  </Configurations>
+  <Project Path="project/HeliCrash.Core/HeliCrash.Core.csproj" />
+  <Project Path="project/HeliCrash.Fika/HeliCrash.Fika.csproj">
+    <BuildType Project="Debug" />
+  </Project>
+</Solution>
