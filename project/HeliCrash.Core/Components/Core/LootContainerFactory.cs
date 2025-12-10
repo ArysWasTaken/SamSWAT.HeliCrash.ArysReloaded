@@ -7,7 +7,6 @@ using Cysharp.Threading.Tasks;
 using EFT;
 using EFT.Interactive;
 using EFT.InventoryLogic;
-using HarmonyLib;
 using JetBrains.Annotations;
 using SamSWAT.HeliCrash.ArysReloaded.Utils;
 using static SPT.Reflection.Utils.ClientAppUtils;
