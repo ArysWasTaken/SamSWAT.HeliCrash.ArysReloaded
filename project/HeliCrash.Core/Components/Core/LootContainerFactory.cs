@@ -65,7 +65,8 @@ public class LootContainerFactory(
 
             await AddLoot(containerItem, cancellationToken);
         }
-        catch (Exception ex) when (ex is not OperationCanceledException)
+        catch (OperationCanceledException) { }
+        catch (Exception ex)
         {
             logger.LogError(
                 $"Failed to create helicrash loot crate! {ex.Message}\n{ex.StackTrace}"

@@ -44,7 +44,8 @@ public class HeliCrashSpawner(
                 cancellationToken
             );
         }
-        catch (Exception ex) when (ex is not OperationCanceledException)
+        catch (OperationCanceledException) { }
+        catch (Exception ex)
         {
             logger.LogError($"Failed to spawn heli crash site(s): {ex.Message}\n{ex.StackTrace}");
         }
