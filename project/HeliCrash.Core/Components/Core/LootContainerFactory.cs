@@ -7,6 +7,7 @@ using Cysharp.Threading.Tasks;
 using EFT;
 using EFT.Interactive;
 using EFT.InventoryLogic;
+using HarmonyLib;
 using JetBrains.Annotations;
 using SamSWAT.HeliCrash.ArysReloaded.Utils;
 using static SPT.Reflection.Utils.ClientAppUtils;
@@ -52,6 +53,8 @@ public class LootContainerFactory(
             Item containerItem = Singleton<ItemFactoryClass>
                 .Instance.FlatItemsToTree(lootResponse.data)
                 .Items[lootResponse.data[0]._id];
+
+            container.Id = containerItem.Id;
 
             LootItem.CreateLootContainer(
                 container,
