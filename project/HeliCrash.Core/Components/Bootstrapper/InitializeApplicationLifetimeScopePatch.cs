@@ -37,5 +37,8 @@ public class InitializeApplicationLifetimeScopePatch : ModulePatch
         var appLifetimeScope = go.AddComponent<ApplicationLifetimeScope>();
         appLifetimeScope.Initialize(s_unityPlugin, Logger);
         appLifetimeScope.Build();
+
+        s_unityPlugin = null;
+        s_bepinexManager = null;
     }
 }
