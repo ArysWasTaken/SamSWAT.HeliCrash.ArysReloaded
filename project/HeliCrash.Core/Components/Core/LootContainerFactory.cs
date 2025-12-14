@@ -1,5 +1,4 @@
 using System;
-using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using Comfort.Common;
@@ -9,51 +8,25 @@ using EFT.Interactive;
 using EFT.InventoryLogic;
 using JetBrains.Annotations;
 using SamSWAT.HeliCrash.ArysReloaded.Utils;
-using static SPT.Reflection.Utils.ClientAppUtils;
+using ZLinq;
 
 namespace SamSWAT.HeliCrash.ArysReloaded;
 
 [UsedImplicitly]
-public class LootContainerFactory(
-    ConfigurationService configService,
-    Logger logger,
-    LocalizationService localizationService
-)
+public abstract class LootContainerFactory(Logger logger, LocalizationService localizationService)
 {
-    private readonly ProfileEndpointFactoryAbstractClass _profileEndpointFactory =
-        (ProfileEndpointFactoryAbstractClass)GetClientApp().GetClientBackEndSession();
-
-    private readonly List<ResourceKey> _temporaryResourceList = new(100);
-
-    public async UniTask CreateContainer(
+    public virtual async UniTask CreateContainer(
         LootableContainer container,
-        string lootTemplateId = null,
+        Item containerItem,
         CancellationToken cancellationToken = default
     )
     {
         try
         {
-            AirdropLootResponse lootResponse = (
-                await _profileEndpointFactory.LoadLootContainerData(lootTemplateId)
-            ).Value;
-
-            cancellationToken.ThrowIfCancellationRequested();
-
-            if (lootResponse?.data == null)
+            if (containerItem == null)
             {
-                if (configService.LoggingEnabled.Value)
-                {
-                    throw new NullReferenceException("Heli crash site loot response is null");
-                }
-
-                return;
+                throw new NullReferenceException("Container item is null!");
             }
-
-            Item containerItem = Singleton<ItemFactoryClass>
-                .Instance.FlatItemsToTree(lootResponse.data)
-                .Items[lootResponse.data[0]._id];
-
-            container.Id = containerItem.Id;
 
             LootItem.CreateLootContainer(
                 container,
@@ -62,7 +35,9 @@ public class LootContainerFactory(
                 Singleton<GameWorld>.Instance
             );
 
-            await AddLoot(containerItem, cancellationToken);
+            ResourceKey[] resourceKeys = GetResourceKeys(containerItem);
+
+            await LoadItemBundles(resourceKeys, cancellationToken);
         }
         catch (OperationCanceledException) { }
         catch (Exception ex)
@@ -73,34 +48,27 @@ public class LootContainerFactory(
         }
     }
 
-    private async UniTask AddLoot(Item containerItem, CancellationToken cancellationToken = default)
+    protected abstract UniTask LoadItemBundles(
+        ResourceKey[] resourceKeys,
+        CancellationToken cancellationToken = default
+    );
+
+    private static ResourceKey[] GetResourceKeys(Item containerItem)
     {
-        ResourceKey[] resources;
+        ResourceKey[] resourceKeys;
         if (containerItem is ContainerData container)
         {
-            var items = (List<Item>)container.GetAllItemsFromCollection();
-
-            foreach (Item item in items)
-            {
-                item.SpawnedInSession = true;
-                _temporaryResourceList.AddRange(item.Template.AllResources);
-            }
-
-            resources = _temporaryResourceList.ToArray();
-
-            _temporaryResourceList.Clear();
+            resourceKeys = container
+                .GetAllItemsFromCollection()
+                .AsValueEnumerable()
+                .SelectMany(item => item.Template.AllResources)
+                .ToArray();
         }
         else
         {
-            resources = containerItem.Template.AllResources.ToArray();
+            resourceKeys = containerItem.Template.AllResources.ToArray();
         }
 
-        await Singleton<PoolManagerClass>.Instance.LoadBundlesAndCreatePools(
-            PoolManagerClass.PoolsCategory.Raid,
-            PoolManagerClass.AssemblyType.Local,
-            resources,
-            JobPriorityClass.Immediate,
-            ct: cancellationToken
-        );
+        return resourceKeys;
     }
 }

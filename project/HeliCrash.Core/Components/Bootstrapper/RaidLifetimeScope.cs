@@ -14,7 +14,10 @@ public class RaidLifetimeScope : LifetimeScope
 
     protected override void Configure(IContainerBuilder builder)
     {
-        builder.Register<LootContainerFactory>(Lifetime.Scoped);
-        builder.Register<HeliCrashSpawner>(Lifetime.Scoped);
+        builder
+            .Register<ServerLootContainerFactory>(Lifetime.Scoped)
+            .As<LootContainerFactory>()
+            .AsSelf();
+        builder.Register<ServerHeliCrashSpawner>(Lifetime.Scoped).As<HeliCrashSpawner>().AsSelf();
     }
 }
