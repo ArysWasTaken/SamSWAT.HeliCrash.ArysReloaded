@@ -1,3 +1,4 @@
+using System;
 using System.IO;
 using JetBrains.Annotations;
 using SamSWAT.HeliCrash.ArysReloaded.Models;
@@ -29,7 +30,9 @@ public class HeliCrashLocationService
             "tarkovstreets" => _locationsConfig.StreetsOfTarkov,
             "sandbox" => _locationsConfig.GroundZero,
             "develop" => _locationsConfig.Develop,
-            _ => null,
+            _ => throw new NullReferenceException(
+                $"Invalid map or no crash location data for map '{map}'!"
+            ),
         };
     }
 }
