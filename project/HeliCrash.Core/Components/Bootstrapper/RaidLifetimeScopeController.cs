@@ -10,7 +10,6 @@ namespace SamSWAT.HeliCrash.ArysReloaded;
 public class RaidLifetimeScopeController
 {
     private ApplicationLifetimeScope _appLifetimeScope;
-    private LifetimeScope _raidLifetimeScope;
 
     public void Initialize(ApplicationLifetimeScope appLifetimeScope)
     {
@@ -19,20 +18,11 @@ public class RaidLifetimeScopeController
 
     public LifetimeScope CreateScope()
     {
-        _raidLifetimeScope = _appLifetimeScope.CreateChild<RaidLifetimeScope>(
+        var raidLifetimeScope = _appLifetimeScope.CreateChild<RaidLifetimeScope>(
             Singleton<GameWorld>.Instance.transform,
             childScopeName: "RaidLifetimeScope"
         );
 
-        return _raidLifetimeScope;
-    }
-
-    public void DisposeScope()
-    {
-        if (_raidLifetimeScope != null)
-        {
-            _raidLifetimeScope.Dispose();
-            _raidLifetimeScope = null;
-        }
+        return raidLifetimeScope;
     }
 }
