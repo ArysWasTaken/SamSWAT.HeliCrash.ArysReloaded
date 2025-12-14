@@ -32,7 +32,7 @@ public class InitializeApplicationLifetimeScopePatch : ModulePatch
     [PatchPostfix]
     private static void PatchPostfix()
     {
-        var go = new GameObject("HeliCrashAppLifetimeScope");
+        var go = new GameObject("HeliCrash_AppLifetimeScope");
         go.transform.SetParent(s_bepinexManager.transform);
         var appLifetimeScope = go.AddComponent<ApplicationLifetimeScope>();
         appLifetimeScope.Initialize(s_unityPlugin, Logger);
