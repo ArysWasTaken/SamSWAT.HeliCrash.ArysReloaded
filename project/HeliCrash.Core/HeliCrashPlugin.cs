@@ -37,7 +37,7 @@ public class HeliCrashPlugin : BaseUnityPlugin
         if (fikaDetected && !fikaAddonDetected)
         {
             throw new DllNotFoundException(
-                "Fika is detected but HeliCrash's Fika Addon is not installed. Please install the Fika Addon!"
+                "Fika is detected but HeliCrash's Fika Sync is not installed. Please install the Fika Sync!"
             );
         }
     }
