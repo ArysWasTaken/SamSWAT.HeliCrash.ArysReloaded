@@ -51,7 +51,7 @@ public class ConfigurationService(ConfigFile pluginConfig, LocalizationService l
             new ConfigDescription(
                 localizationService.Localize("spawnAllCrashSites_desc"),
                 null,
-                new ConfigurationManagerAttributes { Order = order-- }
+                new ConfigurationManagerAttributes { IsAdvanced = true, Order = order-- }
             )
         );
     }
