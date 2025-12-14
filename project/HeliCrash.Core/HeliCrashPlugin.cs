@@ -5,26 +5,42 @@ using BepInEx.Bootstrap;
 namespace SamSWAT.HeliCrash.ArysReloaded;
 
 [BepInPlugin(
-    "com.SamSWAT.HeliCrash.ArysReloaded",
+    "com.samswat.helicrash.arysreloaded",
     "SamSWAT's HeliCrash: Arys Reloaded - Core",
     ModMetadata.VERSION
 )]
 [BepInDependency("com.SPT.core", ModMetadata.TARGET_SPT_VERSION)]
 [BepInDependency("com.arys.unitytoolkit", "2.0.1")]
 [BepInDependency("com.fika.core", BepInDependency.DependencyFlags.SoftDependency)]
+[BepInDependency(
+    "com.samswat.helicrash.arysreloaded.fika",
+    BepInDependency.DependencyFlags.SoftDependency
+)]
 public class HeliCrashPlugin : BaseUnityPlugin
 {
-    public static bool FikaEnabled { get; private set; }
-
     private void Awake()
     {
-        FikaEnabled = Chainloader.PluginInfos.ContainsKey("com.fika.core");
-        if (FikaEnabled) { }
+        DetectFikaAddon();
 
         new InitializeApplicationLifetimeScopePatch(this, gameObject).Enable();
 
-        AwakeEvent?.Invoke();
+        PostAwake?.Invoke();
+        PostAwake = null;
     }
 
-    public static event Action AwakeEvent;
+    private static void DetectFikaAddon()
+    {
+        bool fikaDetected = Chainloader.PluginInfos.ContainsKey("com.fika.core");
+        bool fikaAddonDetected = Chainloader.PluginInfos.ContainsKey(
+            "com.samswat.helicrash.arysreloaded.fika"
+        );
+        if (fikaDetected && !fikaAddonDetected)
+        {
+            throw new DllNotFoundException(
+                "Fika is detected but HeliCrash's Fika Addon is not installed. Please install the Fika Addon!"
+            );
+        }
+    }
+
+    public static event Action PostAwake;
 }
