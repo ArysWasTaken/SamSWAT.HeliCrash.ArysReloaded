@@ -74,12 +74,12 @@
     <Compile Remove="build\**" />
     <EmbeddedResource Remove="build\**" />
   </ItemGroup>
-  <Target Name="PostBuildEvent">
+  <Target Name="PostBuild" AfterTargets="PostBuildEvent">
     <Exec
       Command="if not exist &quot;$(SptBepInExPluginsDir)$(SolutionName)&quot; (&#xA;    mkdir &quot;$(SptBepInExPluginsDir)$(SolutionName)&quot;&#xA;)&#xA;&#xA;copy &quot;$(TargetPath)&quot; &quot;$(SptBepInExPluginsDir)$(SolutionName)\$(TargetFileName)&quot;&#xA;xcopy /y &quot;$(CopyToOutputDir)&quot; &quot;$(SptBepInExPluginsDir)$(SolutionName)\&quot;"
     />
   </Target>
-  <Target Name="CreateMainReleaseZip" AfterTargets="PostBuildEvent">
+  <Target Name="CreateMainReleaseZip" AfterTargets="PostBuild">
     <Exec
       Command="if not &quot;$(ConfigurationName)&quot;==&quot;Debug&quot; (&#xA;    cd /D &quot;$(SptBepInExPluginsDir)..\..\&quot;&#xA;    &quot;C:\Program Files\7-Zip\7z.exe&quot; a &quot;$(ReleaseArchivePath)&quot; &quot;BepInEx\plugins\$(SolutionName)\*&quot; -xr!$(SolutionName).Fika.dll&#xA;)"
     />
