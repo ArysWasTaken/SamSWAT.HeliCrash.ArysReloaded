@@ -7,6 +7,7 @@ using EFT;
 using EFT.Airdrop;
 using HarmonyLib;
 using JetBrains.Annotations;
+using SamSWAT.HeliCrash.ArysReloaded.Models;
 using SamSWAT.HeliCrash.ArysReloaded.Utils;
 using SPT.Reflection.Patching;
 using VContainer.Unity;
@@ -20,15 +21,18 @@ public class RaidLoadScreenPatch : ModulePatch
     private static ConfigurationService s_configService;
     private static Logger s_logger;
     private static RaidLifetimeScopeController s_raidLifetimeScopeController;
+    private static HeliCrashLocationService s_crashLocationService;
 
     public RaidLoadScreenPatch(
         ConfigurationService configService,
         Logger logger,
-        RaidLifetimeScopeController raidLifetimeScopeController
+        RaidLifetimeScopeController raidLifetimeScopeController,
+        HeliCrashLocationService crashLocationService
     )
     {
         s_configService = configService;
         s_logger = logger;
+        s_crashLocationService = crashLocationService;
         s_raidLifetimeScopeController = raidLifetimeScopeController;
     }
 
@@ -45,10 +49,12 @@ public class RaidLoadScreenPatch : ModulePatch
     {
         try
         {
-            string location = Singleton<GameWorld>.Instance.MainPlayer.Location;
+            string location = Singleton<GameWorld>.Instance.LocationId;
+            LocationList crashLocationList = s_crashLocationService.GetCrashLocations(location);
 
             bool crashAvailable =
-                location.ToLower() == "sandbox"
+                crashLocationList.AsValueEnumerable().Any()
+                || location.ToLower() == "sandbox"
                 || LocationScene.GetAll<AirdropPoint>().AsValueEnumerable().Any();
 
             bool shouldSpawnCrash =

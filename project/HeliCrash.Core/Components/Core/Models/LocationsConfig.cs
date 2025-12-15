@@ -16,13 +16,13 @@ public class LocationsConfig(
     [JsonProperty("Develop")] LocationList develop
 )
 {
-    public LocationList Customs { get; } = customs;
-    public LocationList Woods { get; } = woods;
-    public LocationList Interchange { get; } = interchange;
-    public LocationList Lighthouse { get; } = lighthouse;
-    public LocationList Rezerv { get; } = reserve;
-    public LocationList Shoreline { get; } = shoreline;
-    public LocationList StreetsOfTarkov { get; } = streets;
-    public LocationList GroundZero { get; } = groundzero;
-    public LocationList Develop { get; } = develop;
+    public LocationList Customs { get; } = customs ?? [];
+    public LocationList Woods { get; } = woods ?? [];
+    public LocationList Interchange { get; } = interchange ?? [];
+    public LocationList Lighthouse { get; } = lighthouse ?? [];
+    public LocationList Rezerv { get; } = reserve ?? [];
+    public LocationList Shoreline { get; } = shoreline ?? [];
+    public LocationList StreetsOfTarkov { get; } = streets ?? [];
+    public LocationList GroundZero { get; } = groundzero ?? [];
+    public LocationList Develop { get; } = develop ?? [];
 }
