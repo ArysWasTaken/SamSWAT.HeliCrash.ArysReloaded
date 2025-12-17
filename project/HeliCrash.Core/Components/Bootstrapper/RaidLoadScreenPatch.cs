@@ -55,6 +55,16 @@ public class RaidLoadScreenPatch : ModulePatch
 
             string location = Singleton<GameWorld>.Instance.LocationId;
             LocationList crashLocationList = s_crashLocationService.GetCrashLocations(location);
+            if (crashLocationList == null)
+            {
+                if (s_configService.LoggingEnabled.Value)
+                {
+                    s_logger.LogInfo(
+                        $"HeliCrashLocations.json does not contain data on map '{location}'. Aborting spawn of heli crash site!"
+                    );
+                }
+                return;
+            }
 
             bool crashAvailable = crashLocationList.AsValueEnumerable().Any();
 
