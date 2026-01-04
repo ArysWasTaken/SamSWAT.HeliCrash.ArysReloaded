@@ -6,25 +6,38 @@ using Comfort.Common;
 using Cysharp.Threading.Tasks;
 using EFT;
 using JetBrains.Annotations;
+using SamSWAT.HeliCrash.ArysReloaded.Models;
 using SamSWAT.HeliCrash.ArysReloaded.Utils;
 using UnityEngine;
+using ZLinq;
 using Logger = SamSWAT.HeliCrash.ArysReloaded.Utils.Logger;
 using Object = UnityEngine.Object;
 
 namespace SamSWAT.HeliCrash.ArysReloaded;
 
 [UsedImplicitly]
-public abstract class HeliCrashSpawner(ConfigurationService configService, Logger logger)
-    : IDisposable
+public abstract class HeliCrashSpawner(
+    ConfigurationService configService,
+    Logger logger,
+    HeliCrashLocationService locationService
+) : IDisposable
 {
     protected GameObject heliPrefab;
     private AssetBundle _heliBundle;
+
+    public bool? ShouldSpawn { get; private set; }
 
     public async UniTask StartAsync(Task loadScreenTask)
     {
         try
         {
             await loadScreenTask;
+
+            ShouldSpawn = await ShouldSpawnCrashSite();
+            if (!ShouldSpawn.HasValue || (ShouldSpawn.HasValue && !ShouldSpawn.Value))
+            {
+                return;
+            }
 
             if (configService.LoggingEnabled.Value)
             {
@@ -54,8 +67,6 @@ public abstract class HeliCrashSpawner(ConfigurationService configService, Logge
         }
     }
 
-    protected abstract UniTask SpawnCrashSite(CancellationToken cancellationToken = default);
-
     public virtual void Dispose()
     {
         if (_heliBundle != null)
@@ -66,6 +77,65 @@ public abstract class HeliCrashSpawner(ConfigurationService configService, Logge
             }
             _heliBundle.Unload(true);
         }
+    }
+
+    protected abstract UniTask SpawnCrashSite(CancellationToken cancellationToken = default);
+
+    protected virtual UniTask<bool> ShouldSpawnCrashSite(
+        CancellationToken cancellationToken = default
+    )
+    {
+        if (!IsCrashAvailable())
+        {
+            return UniTask.FromResult(false);
+        }
+
+        return UniTask.FromResult(
+            configService.SpawnAllCrashSites.Value
+                || BlessRNG.RngBool(configService.HeliCrashChance.Value)
+        );
+    }
+
+    protected async UniTask<GameObject> InstantiateCrashSiteObject(
+        Vector3 position = default,
+        Vector3 rotation = default,
+        CancellationToken cancellationToken = default
+    )
+    {
+        AsyncInstantiateOperation<GameObject> asyncOperation = Object.InstantiateAsync(
+            heliPrefab,
+            position,
+            Quaternion.Euler(rotation)
+        );
+
+        while (!asyncOperation.isDone)
+        {
+            cancellationToken.ThrowIfCancellationRequested();
+            await UniTask.Yield(cancellationToken);
+        }
+
+        GameObject choppa = asyncOperation.Result[0];
+        return choppa;
+    }
+
+    private bool IsCrashAvailable()
+    {
+        string location = Singleton<GameWorld>.Instance.LocationId;
+        LocationList crashLocationList = locationService.GetCrashLocations(location);
+
+        if (crashLocationList == null)
+        {
+            if (configService.LoggingEnabled.Value)
+            {
+                logger.LogInfo(
+                    $"HeliCrashLocations.json does not contain data on map '{location}'. Aborting spawn of heli crash site!"
+                );
+            }
+
+            return false;
+        }
+
+        return crashLocationList.AsValueEnumerable().Any();
     }
 
     private async UniTask<GameObject> LoadPrefabAsync(
@@ -105,27 +175,5 @@ public abstract class HeliCrashSpawner(ConfigurationService configService, Logge
         requestedGo.SetActive(false);
 
         return requestedGo;
-    }
-
-    protected async UniTask<GameObject> InstantiateCrashSiteObject(
-        Vector3 position = default,
-        Vector3 rotation = default,
-        CancellationToken cancellationToken = default
-    )
-    {
-        AsyncInstantiateOperation<GameObject> asyncOperation = Object.InstantiateAsync(
-            heliPrefab,
-            position,
-            Quaternion.Euler(rotation)
-        );
-
-        while (!asyncOperation.isDone)
-        {
-            cancellationToken.ThrowIfCancellationRequested();
-            await UniTask.Yield(cancellationToken);
-        }
-
-        GameObject choppa = asyncOperation.Result[0];
-        return choppa;
     }
 }

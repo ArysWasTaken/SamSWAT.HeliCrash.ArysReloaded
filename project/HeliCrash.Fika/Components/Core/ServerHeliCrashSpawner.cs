@@ -49,19 +49,32 @@ public class ServerHeliCrashSpawner : LocalHeliCrashSpawner
         return;
 
         async UniTaskVoid InvokeAfterHeliCrashSpawned(
-            Action<LocalHeliCrashSpawner, Logger> callback
+            Action<ServerHeliCrashSpawner, Logger> callback
         )
         {
             CancellationToken cancellationToken = Singleton<GameWorld>
                 .Instance
                 .destroyCancellationToken;
 
+            Logger logger = _configService.LoggingEnabled.Value ? _logger : null;
+
+            while (!ShouldSpawn.HasValue)
+            {
+                await UniTask.Yield(cancellationToken);
+            }
+
+            if (!ShouldSpawn.Value)
+            {
+                callback?.Invoke(this, logger);
+                return;
+            }
+
             while (!_finishedSpawning)
             {
                 await UniTask.Yield(cancellationToken);
             }
 
-            callback?.Invoke(this, _configService.LoggingEnabled.Value ? _logger : null);
+            callback?.Invoke(this, logger);
         }
     }
 }

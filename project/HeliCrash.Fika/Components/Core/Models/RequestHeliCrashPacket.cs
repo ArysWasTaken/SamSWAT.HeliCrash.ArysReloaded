@@ -17,11 +17,12 @@ public class RequestHeliCrashPacket : INetSerializable, IRequestPacket
     }
 
     public PacketType packetType;
+    public bool shouldSpawn;
     public Vector3 position;
     public Vector3 rotation;
     public bool hasLoot;
     public Item containerItem;
-    public int netId;
+    public int containerNetId;
 
     public RequestHeliCrashPacket()
     {
@@ -29,19 +30,22 @@ public class RequestHeliCrashPacket : INetSerializable, IRequestPacket
     }
 
     private RequestHeliCrashPacket(
-        Vector3 position,
-        Vector3 rotation,
-        bool hasLoot,
-        Item containerItem,
-        int netId
+        bool shouldSpawn,
+        Vector3 position = default,
+        Vector3 rotation = default,
+        int[] doorNetIds = null,
+        bool hasLoot = false,
+        Item containerItem = null,
+        int containerNetId = -1
     )
     {
         packetType = PacketType.Response;
+        this.shouldSpawn = shouldSpawn;
         this.position = position;
         this.rotation = rotation;
         this.hasLoot = hasLoot;
         this.containerItem = containerItem;
-        this.netId = netId;
+        this.containerNetId = containerNetId;
     }
 
     public void Serialize(NetDataWriter writer)
@@ -51,13 +55,18 @@ public class RequestHeliCrashPacket : INetSerializable, IRequestPacket
         {
             return;
         }
-        writer.PutUnmanaged(position);
-        writer.PutUnmanaged(rotation);
-        writer.Put(hasLoot);
-        if (hasLoot)
+        writer.Put(shouldSpawn);
+        if (shouldSpawn)
         {
-            writer.PutItem(containerItem);
-            writer.Put(netId);
+            writer.PutUnmanaged(position);
+            writer.PutUnmanaged(rotation);
+            writer.PutArray(doorNetIds);
+            writer.Put(hasLoot);
+            if (hasLoot)
+            {
+                writer.PutItem(containerItem);
+                writer.Put(containerNetId);
+            }
         }
     }
 
@@ -68,13 +77,18 @@ public class RequestHeliCrashPacket : INetSerializable, IRequestPacket
         {
             return;
         }
-        position = reader.GetUnmanaged<Vector3>();
-        rotation = reader.GetUnmanaged<Vector3>();
-        hasLoot = reader.GetBool();
-        if (hasLoot)
+        shouldSpawn = reader.GetBool();
+        if (shouldSpawn)
         {
-            containerItem = reader.GetItem();
-            netId = reader.GetInt();
+            position = reader.GetUnmanaged<Vector3>();
+            rotation = reader.GetUnmanaged<Vector3>();
+            doorNetIds = reader.GetIntArray();
+            hasLoot = reader.GetBool();
+            if (hasLoot)
+            {
+                containerItem = reader.GetItem();
+                containerNetId = reader.GetInt();
+            }
         }
     }
 
@@ -83,16 +97,26 @@ public class RequestHeliCrashPacket : INetSerializable, IRequestPacket
         var requestEvent = HeliCrashRequestEvent.Create(
             (spawner, logger) =>
             {
-                Location spawnLocation = spawner.SpawnLocation;
-                Item item = spawner.ContainerItem;
+                RequestHeliCrashPacket responsePacket;
 
-                var responsePacket = new RequestHeliCrashPacket(
-                    spawnLocation.Position,
-                    spawnLocation.Rotation,
-                    item != null,
-                    item,
-                    spawner.ContainerNetId
-                );
+                if (spawner.ShouldSpawn!.Value)
+                {
+                    Location spawnLocation = spawner.SpawnLocation;
+                    Item item = spawner.ContainerItem;
+
+                    responsePacket = new RequestHeliCrashPacket(
+                        spawner.ShouldSpawn.Value,
+                        spawnLocation.Position,
+                        spawnLocation.Rotation,
+                        item != null,
+                        item,
+                        spawner.ContainerNetId
+                    );
+                }
+                else
+                {
+                    responsePacket = new RequestHeliCrashPacket(spawner.ShouldSpawn.Value);
+                }
 
                 if (logger != null)
                 {
@@ -106,50 +130,12 @@ public class RequestHeliCrashPacket : INetSerializable, IRequestPacket
             }
         );
         EventDispatcher<HeliCrashRequestEvent>.Dispatch(ref requestEvent);
-
-        // RaidLifetimeScope raidLifetimeScope = LifetimeScopeExtensions.GetRaidLifetimeScope();
-        //
-        // var heliCrashSpawner = (ServerHeliCrashSpawner)
-        //     raidLifetimeScope.Container.Resolve(typeof(ServerHeliCrashSpawner));
-        //
-        // heliCrashSpawner
-        //     .OnReceiveRequest(logger =>
-        //     {
-        //         Location spawnLocation = heliCrashSpawner.SpawnLocation;
-        //         Item item = heliCrashSpawner.ContainerItem;
-        //
-        //         var responsePacket = new RequestHeliCrashPacket(
-        //             spawnLocation.Position,
-        //             spawnLocation.Rotation,
-        //             item != null,
-        //             item,
-        //             heliCrashSpawner.ContainerNetId
-        //         );
-        //
-        //         if (logger != null)
-        //         {
-        //             logger.LogInfo($"HeliCrash response packet: {responsePacket}");
-        //             logger.LogInfo(
-        //                 $"Sending HeliCrash response to Fika Client {peer.Id.ToString()}"
-        //             );
-        //         }
-        //
-        //         server.SendDataToPeer(ref responsePacket, DeliveryMethod.ReliableOrdered, peer);
-        //     })
-        //     .Forget();
     }
 
     public void HandleResponse()
     {
         var responseEvent = HeliCrashResponseEvent.Create(this);
         EventDispatcher<HeliCrashResponseEvent>.Dispatch(ref responseEvent);
-
-        // RaidLifetimeScope raidLifetimeScope = LifetimeScopeExtensions.GetRaidLifetimeScope();
-        //
-        // var heliCrashSpawner = (ClientHeliCrashSpawner)
-        //     raidLifetimeScope.Container.Resolve(typeof(ClientHeliCrashSpawner));
-        //
-        // heliCrashSpawner.OnReceiveResponse(this);
     }
 
     public override string ToString()
@@ -161,7 +147,7 @@ public class RequestHeliCrashPacket : INetSerializable, IRequestPacket
             rotation.ToString(),
             hasLoot.ToString(),
             containerItem,
-            netId.ToString()
+            containerNetId.ToString()
         );
     }
 }

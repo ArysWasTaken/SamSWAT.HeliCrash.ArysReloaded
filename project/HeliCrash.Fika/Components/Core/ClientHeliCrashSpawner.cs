@@ -2,6 +2,7 @@ using System;
 using System.Threading;
 using Comfort.Common;
 using Cysharp.Threading.Tasks;
+using EFT;
 using EFT.Interactive;
 using Fika.Core.Networking;
 using Fika.Core.Networking.LiteNetLib;
@@ -20,13 +21,15 @@ public sealed class ClientHeliCrashSpawner : HeliCrashSpawner
     private readonly LootContainerFactory _lootContainerFactory;
 
     private UniTaskCompletionSource<RequestHeliCrashPacket> _currentRequest;
+    private RequestHeliCrashPacket _cachedPacket;
 
     public ClientHeliCrashSpawner(
         ConfigurationService configService,
         Logger logger,
+        HeliCrashLocationService locationService,
         LootContainerFactory lootContainerFactory
     )
-        : base(configService, logger)
+        : base(configService, logger, locationService)
     {
         _configService = configService;
         _logger = logger;
@@ -41,6 +44,14 @@ public sealed class ClientHeliCrashSpawner : HeliCrashSpawner
         base.Dispose();
     }
 
+    protected override async UniTask<bool> ShouldSpawnCrashSite(
+        CancellationToken cancellationToken = default
+    )
+    {
+        _cachedPacket = await RequestDataFromServer(cancellationToken);
+        return _cachedPacket.shouldSpawn;
+    }
+
     protected override async UniTask SpawnCrashSite(CancellationToken cancellationToken = default)
     {
         GameObject choppa = await InstantiateCrashSiteObject(cancellationToken: cancellationToken);
@@ -49,13 +60,13 @@ public sealed class ClientHeliCrashSpawner : HeliCrashSpawner
 
         var container = choppa.GetComponentInChildren<LootableContainer>();
 
-        if (responsePacket.hasLoot)
+        if (_cachedPacket.hasLoot)
         {
-            container.NetId = responsePacket.netId;
+            container.NetId = _cachedPacket.containerNetId;
 
             await _lootContainerFactory.CreateContainer(
                 container,
-                responsePacket.containerItem,
+                _cachedPacket.containerItem,
                 cancellationToken
             );
         }
@@ -66,13 +77,13 @@ public sealed class ClientHeliCrashSpawner : HeliCrashSpawner
         }
 
         choppa.transform.SetPositionAndRotation(
-            responsePacket.position,
-            Quaternion.Euler(responsePacket.rotation)
+            _cachedPacket.position,
+            Quaternion.Euler(_cachedPacket.rotation)
         );
 
         if (_configService.LoggingEnabled.Value)
         {
-            _logger.LogWarning($"Heli crash site spawned at {responsePacket.position.ToString()}");
+            _logger.LogWarning($"Heli crash site spawned at {_cachedPacket.position.ToString()}");
         }
 
         choppa.SetActive(true);

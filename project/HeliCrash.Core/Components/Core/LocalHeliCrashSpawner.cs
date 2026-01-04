@@ -33,7 +33,7 @@ public class LocalHeliCrashSpawner : HeliCrashSpawner
         HeliCrashLocationService locationService,
         LootContainerFactory lootContainerFactory
     )
-        : base(configService, logger)
+        : base(configService, logger, locationService)
     {
         _configService = configService;
         _logger = logger;

@@ -5,7 +5,7 @@ namespace SamSWAT.HeliCrash.ArysReloaded.Fika.Models;
 
 public readonly struct HeliCrashRequestEvent : IEvent
 {
-    public readonly Action<LocalHeliCrashSpawner, Logger> callback;
+    public readonly Action<ServerHeliCrashSpawner, Logger> callback;
 
     [Obsolete("Use the static Create method instead")]
     public HeliCrashRequestEvent()
@@ -13,12 +13,12 @@ public readonly struct HeliCrashRequestEvent : IEvent
         throw new InvalidOperationException("Please use the static Create method instead!");
     }
 
-    private HeliCrashRequestEvent(Action<LocalHeliCrashSpawner, Logger> callback)
+    private HeliCrashRequestEvent(Action<ServerHeliCrashSpawner, Logger> callback)
     {
         this.callback = callback;
     }
 
-    public static HeliCrashRequestEvent Create(Action<LocalHeliCrashSpawner, Logger> callback)
+    public static HeliCrashRequestEvent Create(Action<ServerHeliCrashSpawner, Logger> callback)
     {
         return new HeliCrashRequestEvent(callback);
     }
