@@ -1,6 +1,6 @@
 <Project>
   <PropertyGroup>
-    <Version>1.0.0</Version>
+    <Version>1.0.1</Version>
     <AssemblyVersion>$(Version)</AssemblyVersion>
     <FileVersion>$(Version)</FileVersion>
     <ReleaseArchivePath>$(DistributionDir)$(SolutionName).FIKA-v$(Version)-SPT$(TargetSptVersion).7z</ReleaseArchivePath>
