@@ -56,7 +56,13 @@ public sealed class ClientHeliCrashSpawner : HeliCrashSpawner
     {
         GameObject choppa = await InstantiateCrashSiteObject(cancellationToken: cancellationToken);
 
-        RequestHeliCrashPacket responsePacket = await RequestDataFromServer(cancellationToken);
+        Door[] doors = choppa.GetComponentsInChildren<Door>();
+
+        for (var i = 0; i < doors.Length; i++)
+        {
+            doors[i].NetId = _cachedPacket.doorNetIds[i];
+            Singleton<GameWorld>.Instance.RegisterWorldInteractionObject(doors[i]);
+        }
 
         var container = choppa.GetComponentInChildren<LootableContainer>();
 

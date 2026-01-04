@@ -24,6 +24,7 @@ public class LocalHeliCrashSpawner : HeliCrashSpawner
     private readonly LootContainerFactory _lootContainerFactory;
 
     public Location SpawnLocation { get; private set; }
+    public int[] DoorNetIds { get; private set; }
     public Item ContainerItem { get; private set; }
     public int ContainerNetId { get; private set; }
 
@@ -103,6 +104,23 @@ public class LocalHeliCrashSpawner : HeliCrashSpawner
         if (!_configService.SpawnAllCrashSites.Value)
         {
             CarveNavMesh(choppa);
+        }
+
+        GameWorld gameWorld = Singleton<GameWorld>.Instance;
+
+        if (gameWorld.World_0 != null)
+        {
+            Door[] doors = choppa.GetComponentsInChildren<Door>();
+
+            int doorCount = doors.Length;
+
+            DoorNetIds = new int[doorCount];
+
+            for (var i = 0; i < doorCount; i++)
+            {
+                DoorNetIds[i] = doors[i].NetId;
+                gameWorld.RegisterWorldInteractionObject(doors[i]);
+            }
         }
 
         bool spawnWithLoot =

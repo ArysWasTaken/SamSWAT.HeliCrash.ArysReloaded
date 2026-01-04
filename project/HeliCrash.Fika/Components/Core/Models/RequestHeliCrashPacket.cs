@@ -20,6 +20,7 @@ public class RequestHeliCrashPacket : INetSerializable, IRequestPacket
     public bool shouldSpawn;
     public Vector3 position;
     public Vector3 rotation;
+    public int[] doorNetIds;
     public bool hasLoot;
     public Item containerItem;
     public int containerNetId;
@@ -43,6 +44,7 @@ public class RequestHeliCrashPacket : INetSerializable, IRequestPacket
         this.shouldSpawn = shouldSpawn;
         this.position = position;
         this.rotation = rotation;
+        this.doorNetIds = doorNetIds;
         this.hasLoot = hasLoot;
         this.containerItem = containerItem;
         this.containerNetId = containerNetId;
@@ -108,6 +110,7 @@ public class RequestHeliCrashPacket : INetSerializable, IRequestPacket
                         spawner.ShouldSpawn.Value,
                         spawnLocation.Position,
                         spawnLocation.Rotation,
+                        spawner.DoorNetIds,
                         item != null,
                         item,
                         spawner.ContainerNetId
