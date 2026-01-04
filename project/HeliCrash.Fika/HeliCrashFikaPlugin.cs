@@ -1,4 +1,5 @@
 using System;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Reflection;
@@ -25,21 +26,35 @@ public class HeliCrashFikaPlugin : BaseUnityPlugin
 {
     private void Awake()
     {
-        if (!DetectCoreMod())
-        {
-            throw new DllNotFoundException(
-                "HeliCrash's Fika Sync addon is installed but the HeliCrash mod is not installed in the same directory. Please check you have installed the mod and/or the Fika Sync addon correctly!"
-            );
-        }
+        ValidateCoreModVersion();
 
         HeliCrashPlugin.PostAwake += Initialize;
     }
 
-    private static bool DetectCoreMod()
+    private static void ValidateCoreModVersion()
     {
         string directory = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location)!;
+
         string[] assemblies = Directory.GetFiles(directory, "*.dll");
-        return assemblies.Any(assembly => assembly.Contains("SamSWAT.HeliCrash.ArysReloaded.Core"));
+
+        string coreModPath = assemblies.FirstOrDefault(assembly =>
+            assembly.Contains("SamSWAT.HeliCrash.ArysReloaded.Core")
+        );
+
+        if (coreModPath == null)
+        {
+            throw new FileNotFoundException("Could not find HeliCrash Core mod! Disabling mod.");
+        }
+
+        var coreModVersion = new Version(FileVersionInfo.GetVersionInfo(coreModPath).FileVersion);
+        var targetCoreModVersion = new Version(ModMetadata.TARGET_CORE_MOD_VERSION);
+
+        if (coreModVersion < targetCoreModVersion)
+        {
+            throw new Exception(
+                "Outdated HeliCrash Core mod version! Please update your HeliCrash Core mod! Disabling mod."
+            );
+        }
     }
 
     private static void Initialize()

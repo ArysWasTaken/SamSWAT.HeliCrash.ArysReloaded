@@ -1,8 +1,33 @@
 <Project>
   <PropertyGroup>
     <Version>1.0.1</Version>
+    <TargetCoreModVersion>2.5.1</TargetCoreModVersion>
     <AssemblyVersion>$(Version)</AssemblyVersion>
     <FileVersion>$(Version)</FileVersion>
     <ReleaseArchivePath>$(DistributionDir)$(SolutionName).FIKA-v$(Version)-SPT$(TargetSptVersion).7z</ReleaseArchivePath>
   </PropertyGroup>
+  <Target
+    Name="GenerateModMetadata"
+    BeforeTargets="BeforeCompile"
+    Inputs="$(MSBuildAllProjects)"
+    Outputs="$(IntermediateOutputPath)ModMetadata.cs"
+  >
+    <ItemGroup>
+      <ModMetadataFilePath Include="$(IntermediateOutputPath)ModMetadata.cs" />
+      <GeneratedText Include="// -- Auto-generated at build time --" />
+      <GeneratedText Include="// --------- DO NOT MODIFY ----------" />
+      <GeneratedText Include="%23pragma warning disable CS1591 // Missing XML comment for publicly visible type or member" />
+      <GeneratedText Include="namespace $(RootNamespace)%3B" />
+      <GeneratedText Include="internal static class ModMetadata" />
+      <GeneratedText Include="%7B" />
+      <GeneratedText Include="%09public const string VERSION = &quot;$(Version)&quot;%3B" />
+      <GeneratedText Include="%09public const string TARGET_SPT_VERSION = &quot;$(TargetSptVersion)&quot;%3B" />
+      <GeneratedText Include="%09public const string TARGET_CORE_MOD_VERSION = &quot;$(TargetCoreModVersion)&quot;%3B" />
+      <GeneratedText Include="%7D" />
+    </ItemGroup>
+    <ItemGroup>
+      <Compile Include="@(ModMetadataFilePath)" />
+    </ItemGroup>
+    <WriteLinesToFile File="@(ModMetadataFilePath)" Lines="@(GeneratedText)" Overwrite="true" />
+  </Target>
 </Project>
