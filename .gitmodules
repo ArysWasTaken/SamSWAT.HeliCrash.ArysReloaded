@@ -1,0 +1,6 @@
+[submodule "SharedConfig"]
+	path = SharedConfig
+	url = https://github.com/ArysWasTaken/SPT-Mod-Projects-Shared-Config.git
+[submodule "SharedConfiguration"]
+	path = SharedConfiguration
+	url = https://github.com/ArysWasTaken/SPT-Mod-Projects-Shared-Config.git

@@ -1,38 +1,12 @@
 <Project>
+  <Import Project="SharedConfiguration/Shared.props" />
   <PropertyGroup>
     <TargetSptVersion>4.0.3</TargetSptVersion>
     <Authors>Arys</Authors>
     <Copyright>Copyright © SamSWAT, Arys 2025</Copyright>
     <LangVersion>latest</LangVersion>
     <Configurations>Debug;SPT-3.10 Release;SPT-3.11 Release;SPT-4.0 Release</Configurations>
-    <Platforms>AnyCPU</Platforms>
     <SolutionName>SamSWAT.HeliCrash.ArysReloaded</SolutionName>
-    <DistributionDir>$(MSBuildThisFileDirectory)dist\</DistributionDir>
-  </PropertyGroup>
-  <PropertyGroup>
-    <!-- Your SPT path -->
-    <SptDir>F:\SPT-4.0\</SptDir>
-    <!--
-      This is the path to where all your different SPT versions' assemblies are stored.
-      For example, my SPT Assemblies folder is laid out like so:
-        SPT Assemblies
-        ↳ 38x
-          ↳ ..
-          ↳ Assembly-CSharp.dll
-        ↳ 39x
-        ↳ 310x
-        ↳ 311x
-    -->
-    <SptSharedAssembliesDir>..\..\..\..\SPT Assemblies\</SptSharedAssembliesDir>
-    <!--
-      The SPT version to target.
-      This is used to find the corresponding SPT version's assembles in <SptSharedAssembliesDir>.
-      The value here is mostly a fallback value if you do not have a build configuration set up yet.
-    -->
-    <SptVersion Condition=" '$(SptVersion)' == '' ">400x</SptVersion>
-    <SptBepInExPluginsDir>$(SptDir)BepInEx\plugins\</SptBepInExPluginsDir>
-    <SptBepInExPatchersDir>$(SptDir)BepInEx\patchers\</SptBepInExPatchersDir>
-    <SptServerModsDir>$(SptDir)SPT\user\mods\</SptServerModsDir>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)' == 'Debug' ">
     <OutputPath>Build\Debug\</OutputPath>

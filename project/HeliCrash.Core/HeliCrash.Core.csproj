@@ -10,34 +10,34 @@
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="0Harmony">
-      <HintPath>$(SptSharedAssembliesDir)$(SptVersion)\0Harmony.dll</HintPath>
+      <HintPath>$(SptBepInExCoreDir)0Harmony.dll</HintPath>
     </Reference>
     <Reference Include="Sirenix.Serialization">
-      <HintPath>$(SptSharedAssembliesDir)$(SptVersion)\Sirenix.Serialization.dll</HintPath>
+      <HintPath>$(SptTarkovManagedDir)Sirenix.Serialization.dll</HintPath>
     </Reference>
     <Reference Include="spt-common">
-      <HintPath>$(SptSharedAssembliesDir)$(SptVersion)\spt-common.dll</HintPath>
+      <HintPath>$(SptBepInExPluginsDir)spt\spt-common.dll</HintPath>
     </Reference>
     <Reference Include="spt-custom">
-      <HintPath>$(SptSharedAssembliesDir)$(SptVersion)\spt-custom.dll</HintPath>
+      <HintPath>$(SptBepInExPluginsDir)spt\spt-custom.dll</HintPath>
     </Reference>
     <Reference Include="spt-reflection">
-      <HintPath>$(SptSharedAssembliesDir)$(SptVersion)\spt-reflection.dll</HintPath>
+      <HintPath>$(SptBepInExPluginsDir)spt\spt-reflection.dll</HintPath>
     </Reference>
     <Reference Include="Assembly-CSharp">
-      <HintPath>$(SptSharedAssembliesDir)$(SptVersion)\Assembly-CSharp.dll</HintPath>
+      <HintPath>$(SptTarkovManagedDir)Assembly-CSharp.dll</HintPath>
     </Reference>
     <Reference Include="BepInEx">
-      <HintPath>$(SptSharedAssembliesDir)$(SptVersion)\BepInEx.dll</HintPath>
+      <HintPath>$(SptBepInExCoreDir)BepInEx.dll</HintPath>
     </Reference>
     <Reference Include="Comfort">
-      <HintPath>$(SptSharedAssembliesDir)$(SptVersion)\Comfort.dll</HintPath>
+      <HintPath>$(SptTarkovManagedDir)Comfort.dll</HintPath>
     </Reference>
     <Reference Include="Mono.Cecil">
-      <HintPath>$(SptSharedAssembliesDir)$(SptVersion)\Mono.Cecil.dll</HintPath>
+      <HintPath>$(SptBepInExCoreDir)Mono.Cecil.dll</HintPath>
     </Reference>
     <Reference Include="Newtonsoft.Json">
-      <HintPath>$(SptSharedAssembliesDir)$(SptVersion)\Newtonsoft.Json.dll</HintPath>
+      <HintPath>$(SptTarkovManagedDir)Newtonsoft.Json.dll</HintPath>
     </Reference>
     <Reference Include="UniTask">
       <HintPath>$(SptBepInExPluginsDir)UnityToolkit\UniTask.dll</HintPath>
@@ -46,19 +46,19 @@
       <HintPath>$(SptBepInExPluginsDir)UnityToolkit\UniTask.Linq.dll</HintPath>
     </Reference>
     <Reference Include="UnityEngine">
-      <HintPath>$(SptSharedAssembliesDir)$(SptVersion)\UnityEngine.dll</HintPath>
+      <HintPath>$(SptTarkovManagedDir)UnityEngine.dll</HintPath>
     </Reference>
     <Reference Include="UnityEngine.AIModule">
-      <HintPath>$(SptSharedAssembliesDir)$(SptVersion)\UnityEngine.AIModule.dll</HintPath>
+      <HintPath>$(SptTarkovManagedDir)UnityEngine.AIModule.dll</HintPath>
     </Reference>
     <Reference Include="UnityEngine.AssetBundleModule">
-      <HintPath>$(SptSharedAssembliesDir)$(SptVersion)\UnityEngine.AssetBundleModule.dll</HintPath>
+      <HintPath>$(SptTarkovManagedDir)UnityEngine.AssetBundleModule.dll</HintPath>
     </Reference>
     <Reference Include="UnityEngine.CoreModule">
-      <HintPath>$(SptSharedAssembliesDir)$(SptVersion)\UnityEngine.CoreModule.dll</HintPath>
+      <HintPath>$(SptTarkovManagedDir)UnityEngine.CoreModule.dll</HintPath>
     </Reference>
     <Reference Include="UnityEngine.PhysicsModule">
-      <HintPath>$(SptSharedAssembliesDir)$(SptVersion)\UnityEngine.PhysicsModule.dll</HintPath>
+      <HintPath>$(SptTarkovManagedDir)UnityEngine.PhysicsModule.dll</HintPath>
     </Reference>
     <Reference Include="VContainer">
       <HintPath>$(SptBepInExPluginsDir)UnityToolkit\VContainer.dll</HintPath>
