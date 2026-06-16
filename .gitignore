@@ -393,4 +393,5 @@ FodyWeavers.xsd
 [Rr]eferences/
 mod/**
 dist/
+[Dd]istributions
 global.json
