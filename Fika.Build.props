@@ -1,7 +1,7 @@
 <Project>
   <PropertyGroup>
-    <Version>1.0.3</Version>
-    <TargetCoreModVersion>2.5.1</TargetCoreModVersion>
+    <Version>1.0.4</Version>
+    <TargetCoreModVersion>2.5.2</TargetCoreModVersion>
     <AssemblyVersion>$(Version)</AssemblyVersion>
     <FileVersion>$(Version)</FileVersion>
     <ReleaseArchivePath>$(DistributionDir)$(SolutionName).FIKA-v$(Version)-SPT$(TargetSptVersion).7z</ReleaseArchivePath>
