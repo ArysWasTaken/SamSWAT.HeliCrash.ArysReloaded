@@ -75,18 +75,18 @@ public class HeliCrashFikaPlugin : BaseUnityPlugin
 #if DEBUG
                 FikaGlobals.LogInfo("Registering RequestHeliCrashPacket on Fika Server");
 #endif
-                server.RegisterPacket<RequestHeliCrashPacket, NetPeer>(OnHeliCrashRequest);
+                server.RegisterPacket<HeliCrashDataPacket, NetPeer>(OnHeliCrashRequest);
                 break;
             case FikaClient client:
 #if DEBUG
                 FikaGlobals.LogInfo("Registering RequestHeliCrashPacket on Fika Client");
 #endif
-                client.RegisterPacket<RequestHeliCrashPacket>(OnHeliCrashResponse);
+                client.RegisterPacket<HeliCrashDataPacket>(OnHeliCrashResponse);
                 break;
         }
     }
 
-    private static void OnHeliCrashRequest(RequestHeliCrashPacket packet, NetPeer peer)
+    private static void OnHeliCrashRequest(HeliCrashDataPacket packet, NetPeer peer)
     {
 #if DEBUG
         FikaGlobals.LogInfo(
@@ -96,7 +96,7 @@ public class HeliCrashFikaPlugin : BaseUnityPlugin
         packet.HandleRequest(peer, Singleton<FikaServer>.Instance);
     }
 
-    private static void OnHeliCrashResponse(RequestHeliCrashPacket packet)
+    private static void OnHeliCrashResponse(HeliCrashDataPacket packet)
     {
 #if DEBUG
         FikaGlobals.LogInfo("Received HeliCrash response from Fika Server. Handling response...");

@@ -1,10 +1,11 @@
 using System;
+using SamSWAT.HeliCrash.ArysReloaded.Fika.Models;
 
-namespace SamSWAT.HeliCrash.ArysReloaded.Fika.Models;
+namespace SamSWAT.HeliCrash.ArysReloaded.Fika.Events;
 
 public readonly struct HeliCrashResponseEvent : IEvent
 {
-    public readonly RequestHeliCrashPacket packet;
+    public readonly HeliCrashDataPacket packet;
 
     [Obsolete("Use the static Create method instead")]
     public HeliCrashResponseEvent()
@@ -12,12 +13,12 @@ public readonly struct HeliCrashResponseEvent : IEvent
         throw new InvalidOperationException("Please use the static Create method instead!");
     }
 
-    private HeliCrashResponseEvent(RequestHeliCrashPacket packet)
+    private HeliCrashResponseEvent(HeliCrashDataPacket packet)
     {
         this.packet = packet;
     }
 
-    public static HeliCrashResponseEvent Create(RequestHeliCrashPacket packet)
+    public static HeliCrashResponseEvent Create(HeliCrashDataPacket packet)
     {
         return new HeliCrashResponseEvent(packet);
     }

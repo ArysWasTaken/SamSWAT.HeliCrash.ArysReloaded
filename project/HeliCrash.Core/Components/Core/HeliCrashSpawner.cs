@@ -25,6 +25,7 @@ public abstract class HeliCrashSpawner(
     protected GameObject heliPrefab;
     private AssetBundle _heliBundle;
 
+    public bool FinishedSpawning { get; private set; }
     public bool? ShouldSpawn { get; private set; }
 
     public async UniTask StartAsync(Task loadScreenTask)
@@ -60,10 +61,13 @@ public abstract class HeliCrashSpawner(
             await SpawnCrashSite(cancellationToken);
             cancellationToken.ThrowIfCancellationRequested();
         }
-        catch (OperationCanceledException) { }
         catch (Exception ex)
         {
             logger.LogError($"Failed to spawn heli crash site(s): {ex.Message}\n{ex.StackTrace}");
+        }
+        finally
+        {
+            FinishedSpawning = true;
         }
     }
 

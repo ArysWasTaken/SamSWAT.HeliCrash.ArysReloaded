@@ -1,7 +1,7 @@
 using System;
 using SamSWAT.HeliCrash.ArysReloaded.Utils;
 
-namespace SamSWAT.HeliCrash.ArysReloaded.Fika.Models;
+namespace SamSWAT.HeliCrash.ArysReloaded.Fika.Events;
 
 public readonly struct HeliCrashRequestEvent : IEvent
 {

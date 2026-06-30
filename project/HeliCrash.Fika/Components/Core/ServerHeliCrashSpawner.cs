@@ -1,9 +1,5 @@
-using System;
-using System.Threading;
-using Comfort.Common;
-using Cysharp.Threading.Tasks;
-using EFT;
 using JetBrains.Annotations;
+using SamSWAT.HeliCrash.ArysReloaded.Fika.Events;
 using SamSWAT.HeliCrash.ArysReloaded.Fika.Models;
 using SamSWAT.HeliCrash.ArysReloaded.Utils;
 
@@ -15,8 +11,7 @@ public class ServerHeliCrashSpawner : LocalHeliCrashSpawner
     private readonly ConfigurationService _configService;
     private readonly Logger _logger;
 
-    private bool _finishedSpawning;
-    private RequestHeliCrashPacket _cachedResponsePacket;
+    private HeliCrashDataPacket _cachedResponsePacket;
 
     public ServerHeliCrashSpawner(
         ConfigurationService configService,
@@ -38,7 +33,7 @@ public class ServerHeliCrashSpawner : LocalHeliCrashSpawner
         base.Dispose();
     }
 
-    public RequestHeliCrashPacket GetCachedResponse()
+    public HeliCrashDataPacket GetCachedResponse()
     {
         if (_cachedResponsePacket != null)
         {
@@ -47,7 +42,7 @@ public class ServerHeliCrashSpawner : LocalHeliCrashSpawner
 
         if (ShouldSpawn!.Value)
         {
-            _cachedResponsePacket = new RequestHeliCrashPacket(
+            _cachedResponsePacket = new HeliCrashDataPacket(
                 ShouldSpawn.Value,
                 SpawnLocation.Position,
                 SpawnLocation.Rotation,
@@ -59,50 +54,19 @@ public class ServerHeliCrashSpawner : LocalHeliCrashSpawner
         }
         else
         {
-            _cachedResponsePacket = new RequestHeliCrashPacket(ShouldSpawn.Value);
+            _cachedResponsePacket = new HeliCrashDataPacket(ShouldSpawn.Value);
         }
 
         return _cachedResponsePacket;
     }
 
-    protected override async UniTask SpawnCrashSite(CancellationToken cancellationToken = default)
-    {
-        await base.SpawnCrashSite(cancellationToken);
-        _finishedSpawning = true;
-    }
-
     private void OnReceiveRequest(ref HeliCrashRequestEvent requestEvent)
     {
-        InvokeAfterHeliCrashSpawned(requestEvent.callback).Forget();
-        return;
-
-        async UniTaskVoid InvokeAfterHeliCrashSpawned(
-            Action<ServerHeliCrashSpawner, Logger> callback
-        )
+        if (FinishedSpawning)
         {
-            CancellationToken cancellationToken = Singleton<GameWorld>
-                .Instance
-                .destroyCancellationToken;
-
             Logger logger = _configService.LoggingEnabled.Value ? _logger : null;
 
-            while (!ShouldSpawn.HasValue)
-            {
-                await UniTask.Yield(cancellationToken);
-            }
-
-            if (!ShouldSpawn.Value)
-            {
-                callback?.Invoke(this, logger);
-                return;
-            }
-
-            while (!_finishedSpawning)
-            {
-                await UniTask.Yield(cancellationToken);
-            }
-
-            callback?.Invoke(this, logger);
+            requestEvent.callback.Invoke(this, logger);
         }
     }
 }

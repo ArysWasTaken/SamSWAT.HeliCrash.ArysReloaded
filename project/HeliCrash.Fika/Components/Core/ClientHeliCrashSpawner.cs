@@ -7,6 +7,7 @@ using EFT.Interactive;
 using Fika.Core.Networking;
 using Fika.Core.Networking.LiteNetLib;
 using JetBrains.Annotations;
+using SamSWAT.HeliCrash.ArysReloaded.Fika.Events;
 using SamSWAT.HeliCrash.ArysReloaded.Fika.Models;
 using UnityEngine;
 using Logger = SamSWAT.HeliCrash.ArysReloaded.Utils.Logger;
@@ -20,7 +21,7 @@ public sealed class ClientHeliCrashSpawner : HeliCrashSpawner
     private readonly Logger _logger;
     private readonly LootContainerFactory _lootContainerFactory;
 
-    private RequestHeliCrashPacket _cachedPacket;
+    private HeliCrashDataPacket _cachedPacket;
 
     public ClientHeliCrashSpawner(
         ConfigurationService configService,
@@ -97,14 +98,14 @@ public sealed class ClientHeliCrashSpawner : HeliCrashSpawner
         private readonly ConfigurationService _configService;
         private readonly Logger _logger;
 
-        private UniTaskCompletionSource<RequestHeliCrashPacket> _tcs;
+        private UniTaskCompletionSource<HeliCrashDataPacket> _tcs;
 
         public RequestHandler(ConfigurationService configService, Logger logger)
         {
             _configService = configService;
             _logger = logger;
 
-            _tcs = new UniTaskCompletionSource<RequestHeliCrashPacket>();
+            _tcs = new UniTaskCompletionSource<HeliCrashDataPacket>();
 
             EventDispatcher<HeliCrashResponseEvent>.Subscribe(OnReceiveResponse);
         }
@@ -113,47 +114,52 @@ public sealed class ClientHeliCrashSpawner : HeliCrashSpawner
         {
             EventDispatcher<HeliCrashResponseEvent>.Unsubscribe(OnReceiveResponse);
 
-            UniTaskCompletionSource<RequestHeliCrashPacket> tcs = Interlocked.Exchange(
-                ref _tcs,
-                null
-            );
+            UniTaskCompletionSource<HeliCrashDataPacket> tcs = Interlocked.Exchange(ref _tcs, null);
 
             tcs?.TrySetCanceled();
         }
 
-        public async UniTask<RequestHeliCrashPacket> HandleRequest(
+        public async UniTask<HeliCrashDataPacket> HandleRequest(
             int timeoutSeconds,
             CancellationToken cancellationToken = default
         )
         {
-            UniTaskCompletionSource<RequestHeliCrashPacket> tcs = _tcs;
+            UniTaskCompletionSource<HeliCrashDataPacket> tcs = _tcs;
 
-            using var cts = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken);
-
-            var requestPacket = new RequestHeliCrashPacket();
-
-            if (_configService.LoggingEnabled.Value)
-            {
-                _logger.LogInfo("Sending HeliCrash request to Fika Server...");
-            }
-
-            Singleton<FikaClient>.Instance.SendData(
-                ref requestPacket,
-                DeliveryMethod.ReliableOrdered
+            using var requestCts = CancellationTokenSource.CreateLinkedTokenSource(
+                cancellationToken
+            );
+            using IDisposable timeoutTimer = requestCts.CancelAfterSlim(
+                TimeSpan.FromSeconds(timeoutSeconds),
+                DelayType.Realtime
             );
 
-            (bool isTimeout, RequestHeliCrashPacket responsePacket) =
-                await tcs.Task.TimeoutWithoutException(
-                    TimeSpan.FromSeconds(timeoutSeconds),
-                    DelayType.Realtime,
-                    taskCancellationTokenSource: cts
+            var requestPacket = new HeliCrashDataPacket();
+
+            while (!requestCts.Token.IsCancellationRequested)
+            {
+                if (_configService.LoggingEnabled.Value)
+                {
+                    _logger.LogInfo("Sending HeliCrash request to Fika Server...");
+                }
+
+                Singleton<FikaClient>.Instance.SendData(
+                    ref requestPacket,
+                    DeliveryMethod.ReliableOrdered
                 );
 
-            cancellationToken.ThrowIfCancellationRequested();
+                (bool isRetryTimeout, HeliCrashDataPacket responsePacket) =
+                    await tcs.Task.TimeoutWithoutException(
+                        TimeSpan.FromSeconds(5),
+                        DelayType.Realtime
+                    );
 
-            if (!isTimeout)
-            {
-                return responsePacket;
+                requestCts.Token.ThrowIfCancellationRequested();
+
+                if (!isRetryTimeout)
+                {
+                    return responsePacket;
+                }
             }
 
             throw new TimeoutException(
@@ -163,24 +169,29 @@ public sealed class ClientHeliCrashSpawner : HeliCrashSpawner
 
         private void OnReceiveResponse(ref HeliCrashResponseEvent responseEvent)
         {
-            UniTaskCompletionSource<RequestHeliCrashPacket> tcs = _tcs;
+            UniTaskCompletionSource<HeliCrashDataPacket> tcs = _tcs;
 
             if (tcs == null)
             {
-                _logger.LogError(
-                    "Received response from Fika Server but the requesting CompletionSource is now invalid! Please report this error to the mod developer!"
+                throw new Exception(
+                    "Received HeliCrash response from Fika Server but the requesting CompletionSource is now invalid! Please report this error to the mod developer!"
                 );
-                return;
             }
 
-            if (tcs.TrySetResult(responseEvent.packet))
+            if (!tcs.TrySetResult(responseEvent.packet))
             {
-                if (_configService.LoggingEnabled.Value)
-                {
-                    _logger.LogInfo(
-                        $"Received response from Fika Server: ({responseEvent.packet})"
-                    );
-                }
+                tcs.TrySetException(
+                    new Exception(
+                        "Failed to set result for HeliCrash CompletionSource! Setting exception for CompletionSource!"
+                    )
+                );
+            }
+
+            if (_configService.LoggingEnabled.Value)
+            {
+                _logger.LogInfo(
+                    $"Received HeliCrash response from Fika Server: ({responseEvent.packet})"
+                );
             }
         }
     }
